@@ -75,6 +75,9 @@ public class FileDocument implements com.mendix.systemwideinterfaces.core.IEntit
 		if (mendixObject.isInstanceOf("System.Image")) {
 			return system.proxies.Image.initialize(context, mendixObject);
 		}
+		if (mendixObject.isInstanceOf("StreamingImporter.SampleImportFile")) {
+			return streamingimporter.proxies.SampleImportFile.initialize(context, mendixObject);
+		}
 		if (mendixObject.isInstanceOf("System.SynchronizationErrorFile")) {
 			return system.proxies.SynchronizationErrorFile.initialize(context, mendixObject);
 		}

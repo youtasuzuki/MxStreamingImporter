@@ -15,7 +15,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.mendix.core.Core;
 import com.mendix.core.CoreException;
 import com.mendix.logging.ILogNode;
@@ -25,11 +24,11 @@ import com.mendix.systemwideinterfaces.core.UserAction;
 import com.mendix.systemwideinterfaces.core.meta.IMetaObject;
 import com.mendix.systemwideinterfaces.core.meta.IMetaPrimitive;
 import com.mendix.systemwideinterfaces.core.meta.IMetaPrimitive.PrimitiveType;
-
 import streamingimporter.mplementation.XssfExcelReader;
 import streamingimporter.proxies.constants.Constants;
 
-public class StreamingImportFromXlsx extends UserAction<java.lang.Long> {
+public class StreamingImportFromXlsx extends UserAction<java.lang.Long>
+{
 	/** @deprecated use xlsxFileDocument.getMendixObject() instead. */
 	@java.lang.Deprecated(forRemoval = true)
 	private final IMendixObject __xlsxFileDocument;
@@ -46,22 +45,23 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long> {
 	private final java.lang.Boolean useSystemContext;
 
 	public StreamingImportFromXlsx(
-			IContext context,
-			IMendixObject _xlsxFileDocument,
-			java.lang.String _destinationEntity,
-			java.lang.String _sheetName,
-			java.lang.Long _headerLineNumber,
-			java.lang.Long _skipCount,
-			IMendixObject _columnNameMapping,
-			java.lang.Long _batchCommitSize,
-			java.lang.Long _transactionChunkSize,
-			java.lang.String _beforeBachCommitCallBackMicroflow,
-			java.util.List<IMendixObject> _importedObjects,
-			java.lang.Boolean _useSystemContext) {
+		IContext context,
+		IMendixObject _xlsxFileDocument,
+		java.lang.String _destinationEntity,
+		java.lang.String _sheetName,
+		java.lang.Long _headerLineNumber,
+		java.lang.Long _skipCount,
+		IMendixObject _columnNameMapping,
+		java.lang.Long _batchCommitSize,
+		java.lang.Long _transactionChunkSize,
+		java.lang.String _beforeBachCommitCallBackMicroflow,
+		java.util.List<IMendixObject> _importedObjects,
+		java.lang.Boolean _useSystemContext
+	)
+	{
 		super(context);
 		this.__xlsxFileDocument = _xlsxFileDocument;
-		this.xlsxFileDocument = _xlsxFileDocument == null ? null
-				: system.proxies.FileDocument.initialize(getContext(), _xlsxFileDocument);
+		this.xlsxFileDocument = _xlsxFileDocument == null ? null : system.proxies.FileDocument.initialize(getContext(), _xlsxFileDocument);
 		this.destinationEntity = _destinationEntity;
 		this.sheetName = _sheetName;
 		this.headerLineNumber = _headerLineNumber;
@@ -75,7 +75,8 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long> {
 	}
 
 	@java.lang.Override
-	public java.lang.Long executeAction() throws Exception {
+	public java.lang.Long executeAction() throws Exception
+	{
 		// BEGIN USER CODE
 		if (this.xlsxFileDocument == null) {
 			throw new IllegalArgumentException("xlsxFileDocument cannot be null");
@@ -135,7 +136,8 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long> {
 	 * @return a string representation of this action
 	 */
 	@java.lang.Override
-	public java.lang.String toString() {
+	public java.lang.String toString()
+	{
 		return "StreamingImportFromXlsx";
 	}
 
@@ -205,9 +207,7 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long> {
 
 		@Override
 		public void processRow(int rowIndex, Map<String, String> rowData) throws Exception {
-			// XssfExcelReader の rowIndex は0ベース（0, 1, 2...）か1ベースかを補正
-			// パラメータの headerLineNumber, skipCount (1ベース) と合わせるため +1 して比較
-			long currentLine = rowIndex + 1L;
+			long currentLine = rowIndex;
 
 			// 1. ヘッダー行の解析
 			if (currentLine == this.headerLineNumber) {
@@ -231,7 +231,7 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long> {
 
 				if (Constants.getFILL_LINE_NUMBER().equals(colKey)) {
 					// 行番号を文字列化してセット (1ベースの行番号)
-					newObj.setValue(context, attrName, String.valueOf(currentLine));
+					newObj.setValue(context, attrName, String.format("%06d", currentLine));
 				} else {
 					String cellValue = rowData.get(colKey);
 					if (cellValue != null) {
@@ -384,6 +384,7 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long> {
 				try {
 					Core.microflowCall(callbackMicroflow)
 							.withParam("DestinationList", new ArrayList<>(currentBatch))
+							.withParam("XlsxFileDocument", fileDocObj)
 							.execute(context);
 				} catch (Exception e) {
 					throw new RuntimeException("Error executing callback microflow: " + callbackMicroflow, e);

@@ -6,6 +6,7 @@ package streamingimporter.proxies.microflows;
 
 import com.mendix.core.Core;
 import com.mendix.systemwideinterfaces.core.IContext;
+import com.mendix.systemwideinterfaces.core.IMendixObject;
 
 public final class Microflows
 {
@@ -15,6 +16,25 @@ public final class Microflows
 	private Microflows() {}
 
 	// These are the microflows for the StreamingImporter module
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_ImportSampleBuilder(
+		streamingimporter.proxies.SampleImportFile _sampleImportFile
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("StreamingImporter.ACT_ImportSample");
+		builder = builder.withParam("SampleImportFile", _sampleImportFile);
+		return builder;
+	}
+
+	public static void aCT_ImportSample(
+		IContext context,
+		streamingimporter.proxies.SampleImportFile _sampleImportFile
+	)
+	{
+		aCT_ImportSampleBuilder(
+				_sampleImportFile
+			)
+			.execute(context);
+	}
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder cB_emptyBuilder()
 	{
 		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("StreamingImporter.CB_empty");
@@ -24,5 +44,38 @@ public final class Microflows
 	public static void cB_empty(IContext context)
 	{
 		cB_emptyBuilder().execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder cB_ImportSampleBuilder(
+		java.util.List<streamingimporter.proxies.SampleImportWork> _destinationList,
+		streamingimporter.proxies.SampleImportFile _xlsxFileDocument
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("StreamingImporter.CB_ImportSample");
+		builder = builder.withParam("DestinationList", _destinationList);
+		builder = builder.withParam("XlsxFileDocument", _xlsxFileDocument);
+		return builder;
+	}
+
+	public static void cB_ImportSample(
+		IContext context,
+		java.util.List<streamingimporter.proxies.SampleImportWork> _destinationList,
+		streamingimporter.proxies.SampleImportFile _xlsxFileDocument
+	)
+	{
+		cB_ImportSampleBuilder(
+				_destinationList,
+				_xlsxFileDocument
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder nAV_SampleImportPageBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("StreamingImporter.NAV_SampleImportPage");
+		return builder;
+	}
+
+	public static void nAV_SampleImportPage(IContext context)
+	{
+		nAV_SampleImportPageBuilder().execute(context);
 	}
 }
