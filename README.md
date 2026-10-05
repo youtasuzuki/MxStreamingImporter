@@ -12,9 +12,12 @@ Consequently, no extra work is required when changing attribute names in the tar
 While support for converting data to types other than String has been omitted, standard import implementations typically route data through a "work" entity composed of String fields; thus, type conversion was excluded to maintain simplicity, prioritizing these common use cases.  
 
 ### Three column mapping modes
-- by explicit designation
-- by entity attribute name
-- by colmun-attribute order
+- by explicit designation  
+Create an import-target entity object for mapping and specify the column name of the data to be imported into the target String attribute. This is the method most resilient to refactoring.
+- by entity attribute name  
+Create a destination Entity object for mapping, but leave the target String attribute empty or set it to "=". This approach is resilient to changes in attribute order, though changes to the attribute name will affect the required column name.
+- by colmun-attribute order  
+Do not create a destination Entity object for mapping; instead, specify "empty". While this is the easiest to implement, changes to both attribute order and attribute names will affect the required column names.
 
 ## Streaming Processing
 For XLSX imports, the system utilizes XSSFReader to perform full streaming processing while supporting batch commits and transaction splitting; it achieves a balance between high performance and flexibility by confining potentially slow Microflow operations to callbacks executed prior to batch commits. The decision to handle the read loop within Java—rather than in a Microflow—was made to ensure that XSSFReader’s event processing remains simple, single-threaded, and minimally resource-intensive.
