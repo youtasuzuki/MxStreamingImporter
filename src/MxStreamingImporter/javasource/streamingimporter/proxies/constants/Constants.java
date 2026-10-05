@@ -15,6 +15,9 @@ public final class Constants
 
 	// These are the constants for the StreamingImporter module
 
+	/**
+	* This is a special mapping value for items where you want to specify the Excel row number.
+	*/
 	public static java.lang.String getFILL_LINE_NUMBER()
 	{
 		return (java.lang.String)Core.getConfiguration().getConstantValue("StreamingImporter.FILL_LINE_NUMBER");

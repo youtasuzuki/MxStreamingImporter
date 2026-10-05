@@ -186,6 +186,7 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long>
 
 		private long processedCount = 0;
 		private long txProcessedCount = 0;
+		private final String FILL_LINE_NUMBER = Constants.getFILL_LINE_NUMBER();
 
 		public ImportRowProcessor(IContext context, IMetaObject targetMeta, IMendixObject mappingObj,
 				IMendixObject fileDocObj, String fileDocAssocName,
@@ -229,7 +230,7 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long>
 				String attrName = entry.getKey();
 				String colKey = entry.getValue();
 
-				if (Constants.getFILL_LINE_NUMBER().equals(colKey)) {
+				if (FILL_LINE_NUMBER.equals(colKey)) {
 					// 行番号を文字列化してセット (1ベースの行番号)
 					newObj.setValue(context, attrName, String.format("%06d", currentLine));
 				} else {
@@ -290,13 +291,19 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long>
 				for (IMetaPrimitive p : primitives) {
 					String attrName = p.getName();
 					String mappedValue = mappingObj.getValue(context, attrName);
-
+					String targetSearch = null;
 					if (mappedValue != null && !mappedValue.trim().isEmpty()) {
-						String cleanValue = mappedValue.trim();
-						String colKey = parseColumnKeyOrHeader(cleanValue);
-						if (colKey != null) {
-							attrToColMap.put(attrName, colKey);
-						}
+						// 1. 明示的に値が設定されている場合（$A, $1, $LINE_NUMBER, 任意ヘッダー名 等）
+						targetSearch = mappedValue.trim();
+					} else {
+						// 2. 属性の値が empty（未設定）の場合 -> 属性名そのものを検索キーにする（= と同等）
+						targetSearch = attrName;
+					}
+					// 列キー（列記号やヘッダーとの一致）を解析・取得
+					String colKey = parseColumnKeyOrHeader(targetSearch, attrName);
+					// 見つかった場合のみマップに登録（見つからなければ自然にスキップされる）
+					if (colKey != null) {
+						attrToColMap.put(attrName, colKey);
 					}
 				}
 			} else {
@@ -314,12 +321,20 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long>
 		/**
 		 * ヘッダー名、列記号($A, $B...)、または列番号($1, $2...)から colKey を判定
 		 */
-		private String parseColumnKeyOrHeader(String targetStr) {
+		private String parseColumnKeyOrHeader(String targetStr, String attrName) {
+			if (targetStr == null) {
+				return null;
+			}
 			String clean = targetStr.trim();
 
 			// 特殊キーワード: 行番号
 			if (Constants.getFILL_LINE_NUMBER().equalsIgnoreCase(clean)) {
 				return Constants.getFILL_LINE_NUMBER();
+			}
+
+			// 特殊記号 '=' の場合は属性名そのものを検索対象にする
+			if ("=".equals(clean)) {
+				clean = attrName;
 			}
 
 			// 1. '$' が明示的に付いている場合 ($1, $A) -> 無条件で列指定
