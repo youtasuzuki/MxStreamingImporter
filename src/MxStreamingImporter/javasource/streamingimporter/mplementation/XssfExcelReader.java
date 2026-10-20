@@ -94,6 +94,9 @@ public class XssfExcelReader {
 		@Override
 		public void endRow(int rowNum) {
 			try {
+				if (rowData == null || rowData.isEmpty()) {
+					return;
+				}
 				rowProcessor.processRow(currentRowIndex, rowData);
 			} catch (Exception e) {
 				throw new RuntimeException("Error processing row " + currentRowIndex, e);
