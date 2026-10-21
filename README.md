@@ -1,5 +1,5 @@
 # Description
-StreamingImporter was created to enable the high-speed, memory-efficient import of data—such as XLSX or CSV files—into Mendix entities with a simple implementation.
+StreamingImporter was created to enable the high-speed, memory-efficient import of data—such as XLSX and CSV files—into Mendix entities with a simple implementation.
 Please explore the sample implementation included in the StreamingImporter module to see how these features deliver simplicity, high performance, and ease of operation.
 
 ## Key Features
