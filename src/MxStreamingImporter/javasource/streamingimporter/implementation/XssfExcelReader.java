@@ -1,4 +1,4 @@
-package streamingimporter.mplementation;
+package streamingimporter.implementation;
 
 import java.io.File;
 import java.io.InputStream;
