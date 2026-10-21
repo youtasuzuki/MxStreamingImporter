@@ -1,5 +1,5 @@
 # Description
-StreamingImporter was created to enable the high-speed, memory-efficient import of data—such as XLSX or CSV files—into Mendix entities with a simple implementation. (As of version 1.0.0, only XLSX is supported.)  
+StreamingImporter was created to enable the high-speed, memory-efficient import of data—such as XLSX or CSV files—into Mendix entities with a simple implementation.
 Please explore the sample implementation included in the StreamingImporter module to see how these features deliver simplicity, high performance, and ease of operation.
 
 ## Key Features
@@ -22,8 +22,6 @@ Do not create a destination Entity object for mapping; instead, specify "empty".
 ## Streaming Processing
 For XLSX imports, the system utilizes XSSFReader to perform full streaming processing while supporting batch commits and transaction splitting; it achieves a balance between high performance and flexibility by confining potentially slow Microflow operations to callbacks executed prior to batch commits. The decision to handle the read loop within Java—rather than in a Microflow—was made to ensure that XSSFReader’s event processing remains simple, single-threaded, and minimally resource-intensive.
 
-# Restrictions
-### As of version 1.0.0, only XLSX is supported.
-
 # Dependencies
 ### poi-ooxml
+### commons-csv
