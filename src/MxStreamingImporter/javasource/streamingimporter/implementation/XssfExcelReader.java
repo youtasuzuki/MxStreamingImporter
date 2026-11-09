@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
@@ -19,40 +20,40 @@ public class XssfExcelReader {
 
 	@FunctionalInterface
 	public interface SheetFilter {
-        boolean test(String sheetName) throws Exception;
-    }
+		boolean test(String sheetName) throws Exception;
+	}
 
 	@FunctionalInterface
 	public interface RowProcessor {
 		void processRow(int rowIndex, Map<String, String> rowData) throws Exception;;
 	}
 
-	public static void read(InputStream xlsxIs, String targetSheet, RowProcessor rowProcessor) throws Exception {
-		try (OPCPackage pkg = OPCPackage.open(xlsxIs)) {
-			ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(pkg, false);
-			XSSFReader reader = new XSSFReader(pkg);
-			StylesTable styles = reader.getStylesTable();
-			XSSFReader.SheetIterator sheets = (XSSFReader.SheetIterator) reader.getSheetsData();
-			while (sheets.hasNext()) {
-				try (InputStream is = sheets.next()) {
-					String sheetName = sheets.getSheetName();
-					if (targetSheet != null && !targetSheet.equals(sheetName)) {
-	                    continue;
-	                }
-					DataFormatter formatter = new DataFormatter();
-					SheetContentsHandler handler = new InternalSheetHandler(rowProcessor);
-					XSSFSheetXMLHandler sheetHandler = new XSSFSheetXMLHandler(styles, null, strings, handler, formatter, false);
-					XMLReader parser = XMLHelper.newXMLReader();
-					parser.setContentHandler(sheetHandler);
-					parser.parse(new org.xml.sax.InputSource(is));
-					break; // Exit after processing the target sheet
+	public static void read(OPCPackage pkg, String targetSheet, RowProcessor rowProcessor) throws Exception {
+		ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(pkg, false);
+		XSSFReader reader = new XSSFReader(pkg);
+		StylesTable styles = reader.getStylesTable();
+		XSSFReader.SheetIterator sheets = (XSSFReader.SheetIterator) reader.getSheetsData();
+		while (sheets.hasNext()) {
+			try (InputStream is = sheets.next()) {
+				String sheetName = sheets.getSheetName();
+				if (targetSheet != null && !targetSheet.equals(sheetName)) {
+					continue;
 				}
+				DataFormatter formatter = new DataFormatter();
+				SheetContentsHandler handler = new InternalSheetHandler(rowProcessor);
+				XSSFSheetXMLHandler sheetHandler = new XSSFSheetXMLHandler(styles, null, strings, handler, formatter,
+						false);
+				XMLReader parser = XMLHelper.newXMLReader();
+				parser.setContentHandler(sheetHandler);
+				parser.parse(new org.xml.sax.InputSource(is));
+				break; // Exit after processing the target sheet
 			}
 		}
 	}
 
-	public static void readAllSheets(File excelFile, SheetFilter sheetFilter, RowProcessor rowProcessor) throws Exception {
-		try (OPCPackage pkg = OPCPackage.open(excelFile)) {
+	public static void readAllSheets(File excelFile, SheetFilter sheetFilter, RowProcessor rowProcessor)
+			throws Exception {
+		try (OPCPackage pkg = OPCPackage.open(excelFile, PackageAccess.READ)) {
 			ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(pkg, false);
 			XSSFReader reader = new XSSFReader(pkg);
 			StylesTable styles = reader.getStylesTable();
@@ -61,11 +62,12 @@ public class XssfExcelReader {
 				try (InputStream is = sheets.next()) {
 					String sheetName = sheets.getSheetName();
 					if (sheetFilter != null && !sheetFilter.test(sheetName)) {
-	                    continue;
-	                }
+						continue;
+					}
 					DataFormatter formatter = new DataFormatter();
 					SheetContentsHandler handler = new InternalSheetHandler(rowProcessor);
-					XSSFSheetXMLHandler sheetHandler = new XSSFSheetXMLHandler(styles, null, strings, handler, formatter, false);
+					XSSFSheetXMLHandler sheetHandler = new XSSFSheetXMLHandler(styles, null, strings, handler,
+							formatter, false);
 					XMLReader parser = XMLHelper.newXMLReader();
 					parser.setContentHandler(sheetHandler);
 					parser.parse(new org.xml.sax.InputSource(is));
@@ -73,24 +75,28 @@ public class XssfExcelReader {
 			}
 		}
 	}
-	
+
 	private static class InternalSheetHandler implements SheetContentsHandler {
 		private final RowProcessor rowProcessor;
 		private int currentRowIndex;
 		Map<String, String> rowData;
+
 		public InternalSheetHandler(RowProcessor rowProcessor) {
-            this.rowProcessor = rowProcessor;
-        }		
+			this.rowProcessor = rowProcessor;
+		}
+
 		@Override
 		public void startRow(int rowNum) {
 			currentRowIndex = rowNum + 1;
 			rowData = new java.util.HashMap<>();
 		}
+
 		@Override
 		public void cell(String cellReference, String formattedValue, XSSFComment comment) {
 			String columnName = cellReference.replaceAll("\\d", "");
 			rowData.put(columnName, formattedValue);
 		}
+
 		@Override
 		public void endRow(int rowNum) {
 			try {

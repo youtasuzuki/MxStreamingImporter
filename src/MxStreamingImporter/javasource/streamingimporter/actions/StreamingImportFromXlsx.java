@@ -9,7 +9,12 @@
 
 package streamingimporter.actions;
 
+import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
 import com.mendix.core.Core;
 import com.mendix.core.CoreException;
 import com.mendix.systemwideinterfaces.core.IContext;
@@ -109,14 +114,22 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long>
 				this.beforeBachCommitCallBackMicroflow,
 				this.importedObjects);
 
-		try (InputStream is = Core.getFileDocumentContent(workingContext, this.xlsxFileDocument.getMendixObject())) {
-			// シート名指定（未指定・空文字の場合は null を渡して1番目のシートを読み込み）
-			String targetSheet = (this.sheetName != null && !this.sheetName.trim().isEmpty())
-					? this.sheetName.trim()
-					: null;
-
-			XssfExcelReader.read(is, targetSheet, processor);
+		File tmp = File.createTempFile("import", ".xlsx");
+		try {
+		    try (InputStream is = Core.getFileDocumentContent(workingContext, this.xlsxFileDocument.getMendixObject())) {
+		        Files.copy(is, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		    }
+		    try (OPCPackage pkg = OPCPackage.open(tmp, PackageAccess.READ)) {
+				// シート名指定（未指定・空文字の場合は null を渡して1番目のシートを読み込み）
+				String targetSheet = (this.sheetName != null && !this.sheetName.trim().isEmpty())
+						? this.sheetName.trim()
+						: null;
+				XssfExcelReader.read(pkg, targetSheet, processor);
+		    }
+		} finally {
+		    tmp.delete();
 		}
+
 		// 残ったバッチの処理・コミット
 		processor.flushBatch();
 
