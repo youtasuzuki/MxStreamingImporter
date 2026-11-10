@@ -8,6 +8,9 @@ public class UserActionsRegistrar
   {
     registrator.registerUserAction(feedbackmodule.actions.ValidateEmail.class);
     registrator.registerUserAction(feedbackmodule.actions.XSS_Sanitizer.class);
+    registrator.registerUserAction(streamingimporter.actions.GetColumnNamesFromCsv.class);
+    registrator.registerUserAction(streamingimporter.actions.GetColumnNamesFromXlsx.class);
+    registrator.registerUserAction(streamingimporter.actions.GetSheetNamesFromXlsx.class);
     registrator.registerUserAction(streamingimporter.actions.StreamingImportFromCsv.class);
     registrator.registerUserAction(streamingimporter.actions.StreamingImportFromXlsx.class);
     registrator.registerUserAction(system.actions.VerifyPassword.class);

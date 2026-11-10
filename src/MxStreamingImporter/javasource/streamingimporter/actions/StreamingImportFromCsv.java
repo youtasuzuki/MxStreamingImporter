@@ -28,6 +28,8 @@ public class StreamingImportFromCsv extends UserAction<java.lang.Long>
 	private final IMendixObject __csvFileDocument;
 	private final system.proxies.FileDocument csvFileDocument;
 	private final java.lang.String destinationEntity;
+	private final java.lang.Long headerLineNumber;
+	private final java.lang.Long skipCount;
 	private final java.lang.String charset;
 	private final java.lang.String separatorCharacter;
 	private final java.lang.String quoteCharacter;
@@ -43,6 +45,8 @@ public class StreamingImportFromCsv extends UserAction<java.lang.Long>
 		IContext context,
 		IMendixObject _csvFileDocument,
 		java.lang.String _destinationEntity,
+		java.lang.Long _headerLineNumber,
+		java.lang.Long _skipCount,
 		java.lang.String _charset,
 		java.lang.String _separatorCharacter,
 		java.lang.String _quoteCharacter,
@@ -59,6 +63,8 @@ public class StreamingImportFromCsv extends UserAction<java.lang.Long>
 		this.__csvFileDocument = _csvFileDocument;
 		this.csvFileDocument = _csvFileDocument == null ? null : system.proxies.FileDocument.initialize(getContext(), _csvFileDocument);
 		this.destinationEntity = _destinationEntity;
+		this.headerLineNumber = _headerLineNumber;
+		this.skipCount = _skipCount;
 		this.charset = _charset;
 		this.separatorCharacter = _separatorCharacter;
 		this.quoteCharacter = _quoteCharacter;
@@ -83,8 +89,8 @@ public class StreamingImportFromCsv extends UserAction<java.lang.Long>
 				? Core.createSystemContext()
 				: getContext();
 
-		long headerLine = 1L; // CSVは通常1行目がヘッダー
-		long skip = 1L; // スキップ対象行の初期値
+		long headerLine = (this.headerLineNumber != null && this.headerLineNumber > 0) ? this.headerLineNumber : 1L;
+		long skip = (this.skipCount != null && this.skipCount >= 0) ? this.skipCount : 1L;
 		long batchSize = (this.batchCommitSize != null && this.batchCommitSize > 0) ? this.batchCommitSize : 100L;
 		long txChunkSize = (this.transactionChunkSize != null && this.transactionChunkSize > 0)
 				? this.transactionChunkSize

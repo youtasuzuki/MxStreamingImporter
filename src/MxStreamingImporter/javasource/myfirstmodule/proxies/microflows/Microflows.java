@@ -6,6 +6,7 @@ package myfirstmodule.proxies.microflows;
 
 import com.mendix.core.Core;
 import com.mendix.systemwideinterfaces.core.IContext;
+import com.mendix.systemwideinterfaces.core.IMendixObject;
 
 public final class Microflows
 {
@@ -15,6 +16,55 @@ public final class Microflows
 	private Microflows() {}
 
 	// These are the microflows for the MyFirstModule module
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_ColumnNamesSampleBuilder(
+		streamingimporter.proxies.SampleImportFile _sampleImportFile
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MyFirstModule.ACT_ColumnNamesSample");
+		builder = builder.withParam("SampleImportFile", _sampleImportFile);
+		return builder;
+	}
+
+	public static void aCT_ColumnNamesSample(
+		IContext context,
+		streamingimporter.proxies.SampleImportFile _sampleImportFile
+	)
+	{
+		aCT_ColumnNamesSampleBuilder(
+				_sampleImportFile
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_SheetNamesSampleBuilder(
+		streamingimporter.proxies.SampleImportFile _sampleImportFile
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MyFirstModule.ACT_SheetNamesSample");
+		builder = builder.withParam("SampleImportFile", _sampleImportFile);
+		return builder;
+	}
+
+	public static void aCT_SheetNamesSample(
+		IContext context,
+		streamingimporter.proxies.SampleImportFile _sampleImportFile
+	)
+	{
+		aCT_SheetNamesSampleBuilder(
+				_sampleImportFile
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder dS_GetNamesSampleBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MyFirstModule.DS_GetNamesSample");
+		return builder;
+	}
+
+	public static streamingimporter.proxies.SampleImportFile dS_GetNamesSample(IContext context)
+	{
+		Object result = dS_GetNamesSampleBuilder().execute(context);
+		return result == null ? null : streamingimporter.proxies.SampleImportFile.initialize(context, (IMendixObject) result);
+	}
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder myFirstLogicBuilder()
 	{
 		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MyFirstModule.MyFirstLogic");

@@ -25,7 +25,7 @@ public class XssfExcelReader {
 
 	@FunctionalInterface
 	public interface RowProcessor {
-		void processRow(int rowIndex, Map<String, String> rowData) throws Exception;;
+		void processRow(int rowIndex, Map<String, String> rowData) throws Exception;
 	}
 
 	public static void read(OPCPackage pkg, String targetSheet, RowProcessor rowProcessor) throws Exception {
@@ -88,7 +88,7 @@ public class XssfExcelReader {
 		@Override
 		public void startRow(int rowNum) {
 			currentRowIndex = rowNum + 1;
-			rowData = new java.util.HashMap<>();
+			rowData = new java.util.LinkedHashMap<>();
 		}
 
 		@Override
