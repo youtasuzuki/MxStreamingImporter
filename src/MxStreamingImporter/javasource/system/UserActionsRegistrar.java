@@ -11,6 +11,7 @@ public class UserActionsRegistrar
     registrator.registerUserAction(streamingimporter.actions.GetColumnNamesFromCsv.class);
     registrator.registerUserAction(streamingimporter.actions.GetColumnNamesFromXlsx.class);
     registrator.registerUserAction(streamingimporter.actions.GetSheetNamesFromXlsx.class);
+    registrator.registerUserAction(streamingimporter.actions.SerialToDateTime.class);
     registrator.registerUserAction(streamingimporter.actions.StreamingImportFromCsv.class);
     registrator.registerUserAction(streamingimporter.actions.StreamingImportFromXlsx.class);
     registrator.registerUserAction(system.actions.VerifyPassword.class);

@@ -35,6 +35,16 @@ public final class Microflows
 			)
 			.execute(context);
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_SerialToDateTestBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MyFirstModule.ACT_SerialToDateTest");
+		return builder;
+	}
+
+	public static void aCT_SerialToDateTest(IContext context)
+	{
+		aCT_SerialToDateTestBuilder().execute(context);
+	}
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_SheetNamesSampleBuilder(
 		streamingimporter.proxies.SampleImportFile _sampleImportFile
 	)
