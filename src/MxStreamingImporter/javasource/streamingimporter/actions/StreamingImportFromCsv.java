@@ -117,6 +117,7 @@ public class StreamingImportFromCsv extends UserAction<java.lang.Long>
 
 		// 共通の行処理プロセッサ生成
 		ImportHelper.ImportRowProcessor processor = new ImportHelper.ImportRowProcessor(
+				getContext(),
 				workingContext,
 				metaObject,
 				this.columnNameMapping,

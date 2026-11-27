@@ -35,6 +35,25 @@ public final class Microflows
 			)
 			.execute(context);
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_ImportSkippedDataTestBuilder(
+		streamingimporter.proxies.SampleImportFile _sampleImportFile
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MyFirstModule.ACT_ImportSkippedDataTest");
+		builder = builder.withParam("SampleImportFile", _sampleImportFile);
+		return builder;
+	}
+
+	public static void aCT_ImportSkippedDataTest(
+		IContext context,
+		streamingimporter.proxies.SampleImportFile _sampleImportFile
+	)
+	{
+		aCT_ImportSkippedDataTestBuilder(
+				_sampleImportFile
+			)
+			.execute(context);
+	}
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_SerialToDateTestBuilder()
 	{
 		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MyFirstModule.ACT_SerialToDateTest");
@@ -61,6 +80,29 @@ public final class Microflows
 	{
 		aCT_SheetNamesSampleBuilder(
 				_sampleImportFile
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder cB_ImportSkippedDataTestBuilder(
+		java.util.List<streamingimporter.proxies.SampleImportWork> _destinationList,
+		streamingimporter.proxies.SampleImportFile _xlsxFileDocument
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MyFirstModule.CB_ImportSkippedDataTest");
+		builder = builder.withParam("DestinationList", _destinationList);
+		builder = builder.withParam("XlsxFileDocument", _xlsxFileDocument);
+		return builder;
+	}
+
+	public static void cB_ImportSkippedDataTest(
+		IContext context,
+		java.util.List<streamingimporter.proxies.SampleImportWork> _destinationList,
+		streamingimporter.proxies.SampleImportFile _xlsxFileDocument
+	)
+	{
+		cB_ImportSkippedDataTestBuilder(
+				_destinationList,
+				_xlsxFileDocument
 			)
 			.execute(context);
 	}

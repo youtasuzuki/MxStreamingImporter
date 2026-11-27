@@ -20,6 +20,42 @@ import streamingimporter.proxies.constants.Constants;
 public class ImportHelper {
 
 	public static final ILogNode logger = Core.getLogger("StreamingImporter");
+	// IContext.getData() 用のキー
+	private static final String CONTEXT_KEY_SKIPPED_LINES = "StreamingImporter.SkippedLines";
+
+
+	/**
+	 * 0ベースインデックスを Excel列記号に変換 (0 -> "A", 1 -> "B", 25 -> "Z", 26 -> "AA")
+	 */
+	public static String idxToExcelColumn(int index) {
+		StringBuilder sb = new StringBuilder();
+		while (index >= 0) {
+			sb.insert(0, (char) ('A' + (index % 26)));
+			index = (index / 26) - 1;
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * スキップされた行の指定セル値を取得する (1-based lineNumber, 1-based columnNumber)
+	 */
+	@SuppressWarnings("unchecked")
+	public static String getSkippedLineValue(IContext context, long lineNumber, long columnNumber) {
+		if (context == null || lineNumber <= 0 || columnNumber <= 0) {
+			return null;
+		}
+		Object data = context.getData().get(CONTEXT_KEY_SKIPPED_LINES);
+		if (!(data instanceof Map)) {
+			return null;
+		}
+		Map<Long, Map<String, String>> lines = (Map<Long, Map<String, String>>) data;
+		Map<String, String> row = lines.get(lineNumber);
+		if (row == null) {
+			return null;
+		}
+		String colKey = idxToExcelColumn((int) (columnNumber - 1));
+		return row.get(colKey);
+	}
 
 	/**
 	 * FileDocumentへのアソシエーション（またはそのサブクラス）を自動検索
@@ -61,16 +97,19 @@ public class ImportHelper {
 		private final Map<String, String> attrToColMap = new HashMap<>(); // attrName -> colKey
 		private final List<IMendixObject> currentBatch = new ArrayList<>();
 
+		private final Map<Long, Map<String, String>> skippedLinesMap = new HashMap<>();
+
 		private long processedCount = 0;
 		private long txProcessedCount = 0;
 		private final String FILL_LINE_NUMBER = Constants.getFILL_LINE_NUMBER();
 
-		public ImportRowProcessor(IContext context, IMetaObject targetMeta, IMendixObject mappingObj,
+		public ImportRowProcessor(IContext originalContext, IContext workingContext, IMetaObject targetMeta,
+				IMendixObject mappingObj,
 				IMendixObject fileDocObj, String fileDocAssocName,
 				long headerLineNumber, long skipCount, long batchSize,
 				long txChunkSize, String callbackMicroflow,
 				List<IMendixObject> importedObjectsOutput) {
-			this.context = context;
+			this.context = workingContext;
 			this.targetMeta = targetMeta;
 			this.mappingObj = mappingObj;
 			this.fileDocObj = fileDocObj;
@@ -81,6 +120,13 @@ public class ImportHelper {
 			this.txChunkSize = txChunkSize;
 			this.callbackMicroflow = callbackMicroflow;
 			this.importedObjectsOutput = importedObjectsOutput;
+			// 呼び出し元のコンテキストと実行用コンテキストの両方にスキップ行データ保持要の空のマップを登録
+			if (originalContext != null) {
+				originalContext.getData().put(CONTEXT_KEY_SKIPPED_LINES, this.skippedLinesMap);
+			}
+			if (workingContext != null) {
+				workingContext.getData().put(CONTEXT_KEY_SKIPPED_LINES, this.skippedLinesMap);
+			}
 		}
 
 		@Override
@@ -102,8 +148,17 @@ public class ImportHelper {
 				return;
 			}
 
-			// スキップ行の無視
+			// スキップ対象行であればマップに保存して終了
 			if (currentLine <= this.skipCount) {
+				Map<String, String> copiedRow = new HashMap<>();
+				for (Map.Entry<String, String> entry : rowData.entrySet()) {
+					String val = entry.getValue();
+					if (currentLine == 1 && val != null && val.startsWith("\uFEFF")) {
+						val = val.substring(1);
+					}
+					copiedRow.put(entry.getKey(), val);
+				}
+				this.skippedLinesMap.put(currentLine, copiedRow);
 				return;
 			}
 
@@ -241,15 +296,6 @@ public class ImportHelper {
 			}
 
 			return null;
-		}
-
-		private String idxToExcelColumn(int index) {
-			StringBuilder sb = new StringBuilder();
-			while (index >= 0) {
-				sb.insert(0, (char) ('A' + (index % 26)));
-				index = (index / 26) - 1;
-			}
-			return sb.toString();
 		}
 
 		private int excelColumnToIdx(String col) {

@@ -102,6 +102,7 @@ public class StreamingImportFromXlsx extends UserAction<java.lang.Long>
 
 		// バッチ処理用コンテキスト
 		ImportRowProcessor processor = new ImportRowProcessor(
+				getContext(),
 				workingContext,
 				metaObject,
 				this.columnNameMapping,
